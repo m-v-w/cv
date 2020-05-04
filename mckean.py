@@ -7,7 +7,7 @@ def genproc_1dim_ex(L, h, N, a, b):
     for l in range(1, L + 1):
         for i in range(N):
             x[i, l] = x[i, l - 1] + np.mean(a(np.ones(N) * x[i, l - 1], x[:, l - 1]) * h)\
-                + np.mean(b(np.ones(N) * x[i, l - 1], x[:, l - 1]) * deltaW[i, l - 1])
+                + np.mean(b(x[i, l - 1], x[:, l - 1]) * deltaW[i, l - 1])
     return x, deltaW
 
 
@@ -16,8 +16,20 @@ def a(x, u):
 
 
 def b(x, u):
-    return np.ones(u.shape[0])
+    if np.isscalar(x):
+        return np.ones(u.shape[0])
+    else:
+        return np.ones((x.shape[0], u.shape[0]))
 
+
+def bMat(x, dw):
+    N = x.shape[0]
+    L = x.shape[1] - 1
+    B = np.zeros((N, L))
+    for l in range(L):
+        xm = np.tile(x[:, l], (N, 1))
+        B[:, l] = np.mean(b(xm.transpose(), xm), 1) * dw[:, l + 1]
+    return B
 
 def f(x, u):
     return np.fmax(x-0.5, 0)
@@ -25,10 +37,10 @@ def f(x, u):
 
 def genPoly(x, K):
     n = x.shape[0]
-    A = tf.ones((n, K))
+    A = np.ones((n, K))
     for i in range(1, K-1):
         A[:, i] = x * A[:, i-1]
-    A[:, K-1] = tf.mean(f(x.reshape((n,1))*tf.ones((1, n)), tf.ones((1, n))*x.reshape((n,1))), 1)
+    A[:, K-1] = np.mean(f(x.reshape((n, 1))*np.ones((1, n)), np.ones((1, n))*x.reshape((n, 1))), 1)
     return A
 
 
