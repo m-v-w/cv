@@ -8,27 +8,24 @@ from varminutils import VarianceError
 
 
 class NNCVModel(object):
-    def __init__(self, x, dw):
+    def __init__(self, x, dw, h):
         N = x.shape[0]
         L = x.shape[1] - 1
         B = mckean.bMat(x, dw)
         self.b = tf.constant(B, dtype=tf.float32)
-        lIn = Input(shape=(L,))
-
         self.models = []
         self.trainable_weights = []
         for j in range(L):
             m = tf.keras.Sequential([
                 tf.keras.layers.Input(1),
-                tf.keras.layers.Dense(50, activation=tf.nn.relu),  # input shape required
-                tf.keras.layers.Dense(50, activation=tf.nn.relu),
+                tf.keras.layers.Dense(100, activation=tf.nn.relu),  # input shape required
+                tf.keras.layers.Dense(100, activation=tf.nn.relu),
                 tf.keras.layers.Dense(1)
             ])
             self.trainable_weights.extend(m.trainable_weights)
             self.models.append(m)
-
-        xm = np.tile(x[:, -1], (N, 1))
-        self.f = tf.constant(np.mean(mckean.f(xm.transpose(), xm), 1), dtype=tf.float32)
+        u, udW = mckean.genproc_1dim_ex(L, h, N, mckean.a, mckean.b)
+        self.f = tf.constant(np.mean(mckean.f(np.tile(x[:, -1], (N, 1)).transpose(), np.tile(u[:, -1], (N, 1))), 1), dtype=tf.float32)
         self.loss_fn = VarianceError()
         self.pred_y = tf.zeros((N))
 

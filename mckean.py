@@ -32,7 +32,8 @@ def bMat(x, dw):
     return B
 
 def f(x, u):
-    return np.fmax(x-0.5, 0)
+    #return np.fmax(x-u, 0)
+    return np.cos(x)*np.sin(u)
 
 
 def genPoly(x, K):
