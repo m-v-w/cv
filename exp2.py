@@ -2,7 +2,7 @@ import mckean
 import numpy as np
 import varminmodel as vm
 import tensorflow as tf
-import tensorflow.keras as keras;
+import tensorflow.keras as keras
 
 h = 0.02
 L = int(1 / h)
