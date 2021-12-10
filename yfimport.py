@@ -14,7 +14,7 @@ for i in range(m):
     yf_chain = yf_ticker.option_chain(expirations[i])
     s = np.array(yf_chain.calls.strike)
     _, i1, i2 = np.intersect1d(strikes, s, assume_unique=True, return_indices=True)
-    p = np.array(yf_chain.calls.lastPrice)
+    p = np.array(yf_chain.calls.ask)
     prices[i, i1] = p[i2]
 
 date_mask = prices[:, 0] >= 0
@@ -33,5 +33,6 @@ result = prices[date_mask, :]
 result = result[:, strike_mask]
 result_strike = strikes[strike_mask]
 result_dates = dates[date_mask]
-
-np.savez("data/spx.npz", result, result_strike, result_dates, yf_ticker.info["bid"], np.datetime64('today'))
+s0 = yf_ticker.info["bid"]
+print(s0)
+np.savez("data/spx.npz", result, result_strike, result_dates, s0, np.datetime64('today'))

@@ -1,5 +1,4 @@
 import numpy as np
-import tensorflow as tf
 
 def genproc_1dim_ex(L, h, N, a, b):
     x = np.zeros((N, L + 1))
@@ -30,6 +29,13 @@ def bMat(x, dw):
         xm = np.tile(x[:, l], (N, 1))
         B[:, l] = np.mean(b(xm.transpose(), xm), 1) * dw[:, l + 1]
     return B
+
+
+def f_call(x, u):
+    n = x.size
+    y = np.fmax(x-0.5, 0)
+    return np.tile(y, (n, 1)).transpose()
+
 
 def f(x, u):
     #return np.fmax(x-u, 0)
