@@ -2,6 +2,7 @@ import numpy as np
 import lsv
 import csaps
 import scipy.interpolate
+import splines.BucketSpline
 
 h = 1 / 100
 L = int(5 / h)
@@ -29,15 +30,15 @@ for j in range(M):
     space_x = np.linspace(np.min(Xr[:, :, 0]), np.max(Xr[:, :, 0]), num=50)
     space_y = np.linspace(np.min(Xr[:, :, 1]), np.max(Xr[:, :, 1]), num=50)
     for l in range(L-1, 0, -1):
-        s = N * np.std(w[:, l + 1])
-        spline = scipy.interpolate.SmoothBivariateSpline(Xr[:, l, 0], Xr[:, l, 1], w[:, l + 1], s=s)
+        #s = N * np.std(w[:, l + 1])
+        #spline = scipy.interpolate.SmoothBivariateSpline(Xr[:, l, 0], Xr[:, l, 1], w[:, l + 1], s=s)
         #input = [Xr[:, l, 0], Xr[:, l, 1]]
         #spline = csaps.NdGridCubicSmoothingSpline(input, w[:, l + 1], smooth=.9)
-
+        spline = splines.BucketSpline.BucketSpline(Xr[:, l, 0], Xr[:, l, 1], w[:, l + 1])
         w[:, l] = spline(Xr[:, l, 0], Xr[:, l, 1], grid=False)
         dbg = np.mean((w[:,l]-w[:,l+1])**2)
-        delta_phi[:, l, 0] = spline(Xr[:, l, 0], Xr[:, l, 1], dx=1, grid=False)
-        delta_phi[:, l, 1] = spline(Xr[:, l, 0], Xr[:, l, 1], dy=1, grid=False)
+        delta_phi[:, l, 0] = spline(Xr[:, l, 0], Xr[:, l, 1], dx=1)
+        delta_phi[:, l, 1] = spline(Xr[:, l, 0], Xr[:, l, 1], dy=1)
         print('{l:d} s={s:.2f}, dbg={dbg:.2f}, res={res:.2f}, max-coeff={mc:.2f}, dmin={dmin:.2f}, dmax={dmax:.2f}'.format(l=l, s=s, dbg=dbg, res=spline.get_residual(), mc=np.max(np.abs(spline.get_coeffs())), dmin=np.min(delta_phi[:, l, 0]), dmax=np.max(delta_phi[:, l, 0])))
 
     cv = np.zeros((N, 1))
