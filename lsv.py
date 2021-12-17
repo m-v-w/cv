@@ -1,9 +1,10 @@
 import numpy as np
 import scipy.interpolate
 import marketvol
+from mckeangenerator import IPathGenerator
 
 
-class LsvGenerator(object):
+class LsvGenerator(IPathGenerator):
     def __init__(self, r, kappa, v0, theta, xi, rho):
         self.v_lower_bound = theta-xi**2/(2*kappa)
         print("Lower variance bound", self.v_lower_bound)
@@ -34,12 +35,12 @@ class LsvGenerator(object):
         dupire = np.zeros(n)
         for i in range(n):
             dupire[i] = self.market_vol.dupire_vol(t, x[i])
-        d1 = np.zeros((n, 2))
-        d1[:, 0] = dupire / np.sqrt(cond_v) * x * np.sqrt(v)
-        d21 = self.xi * np.sqrt(v) * self.rho
-        d22 = self.xi * np.sqrt(v) * np.sqrt(1 - self.rho ** 2)
-        d2 = np.stack((d21, d22), axis=1)
-        return np.stack((d1, d2), axis=1)
+        result = np.empty((n, 2, 2))
+        result[:, 0, 0] = dupire / np.sqrt(cond_v) * x * np.sqrt(v)
+        result[:, 0, 1] = 0
+        result[:, 1, 0] = self.xi * np.sqrt(v) * self.rho
+        result[:, 1, 1] = self.xi * np.sqrt(v) * np.sqrt(1 - self.rho ** 2)
+        return result
 
     def generate(self, N, L, h):
         x0 = self.market_vol.s0
@@ -54,3 +55,6 @@ class LsvGenerator(object):
             x[:, l, 0] = x[:, l - 1, 0] + drift[:, 0] * h + diffusion[:, 0, 0] * dW[:, l - 1, 0] + diffusion[:, 0, 1] * dW[:, l - 1, 1]
             x[:, l, 1] = np.fmax(self.v_lower_bound, x[:, l - 1, 1] + drift[:, 1] * h + diffusion[:, 1, 0] * dW[:, l - 1, 0] + diffusion[:, 1, 1] * dW[:, l - 1, 1])
         return x, dW
+
+    def get_dimensions(self):
+        return 2, 2
