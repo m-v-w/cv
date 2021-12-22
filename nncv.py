@@ -1,6 +1,7 @@
 import numpy as np
 import mckeangenerator
 from nncvmodel import NNCVModel
+from nncvmodelmulti import NNCVMultiModel
 from varminmodel import VarMinModel
 import tensorflow as tf
 import keras.backend as K
@@ -19,8 +20,8 @@ generator = mckeangenerator.SimpleCorrGenerator(0)
 x, dw = generator.generate(Nr, L, h)
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-tX = tf.constant(x[:, 1:], dtype=tf.float32)
-model = NNCVModel(x, dw, h)
+tX = tf.constant(x[:, 1:, :], dtype=tf.float32)
+model = NNCVMultiModel(x, dw, h)
 current_loss = model.loss(model(tX))
 print('Initial: loss=%2.8f' % current_loss)
 

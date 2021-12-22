@@ -8,7 +8,7 @@ class IPathGenerator(object):
 
     def diffusion(self, X, t):
         """
-        :param X: [sample, time_index]
+        :param X: [sample, dimension_index]
         :param t: time
         :return: [sample, dimension_index, brownian_motion_index]
         """
@@ -22,6 +22,28 @@ class IPathGenerator(object):
         :return: X-dimensions, dW-dimensions
         """
         pass
+
+    def generate_diffusions(self, x, dw, h):
+        """
+
+        :param x: [sample, dimension_index]
+        :param dw: [sample, brownian_motion_index]
+        :param h: time step
+        :return: [sample, time_index, dimension_index]
+        """
+        N = x.shape[0]
+        L = x.shape[1] - 1
+        d_x = x.shape[2]
+        d_w = dw.shape[2]
+        B = np.zeros((N, L, d_x))
+        for l in range(L):
+            xm = np.tile(x[:, l], (N, 1))
+            t = (l - 1) * h
+            diffusion = self.diffusion(x[:, l, :], t)
+            for k_x in range(d_x):
+                for k_w in range(d_w):
+                    B[:, l, k_x] = B[:, l, k_x] + diffusion[:, k_x, k_w] * dw[:, l + 1, k_w]
+        return B
 
 
 class SimpleGenerator(IPathGenerator):
@@ -85,6 +107,7 @@ class SimpleCorrGenerator(IPathGenerator):
             xm = np.tile(x[:, l], (N, 1))
             B[:, l] = np.mean(b(xm.transpose(), xm), 1) * dw[:, l + 1]
         return B
+
 
     def get_dimensions(self):
         return 2, 2
