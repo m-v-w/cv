@@ -6,7 +6,7 @@ import scipy.interpolate
 import mckeangenerator
 import splines.BucketSpline
 import splines.GridSpline
-
+from payouts import CallPayout
 
 h = 1 / 100
 L = int(5 / h)
@@ -18,12 +18,12 @@ v0 = 0.16*0.16
 theta = 0.16*0.16
 xi = 0.4
 rho = -0.5
-#rho = 0
 
 generator = lsv.LsvGenerator(r, kappa, v0, theta, xi, rho)
 strike = generator.market_vol.s0
 #generator = mckeangenerator.SimpleCorrGenerator(-0.5)
 #strike = 0.5
+payout = CallPayout(strike)
 h = 0.02
 L = int(1 / h)
 N = 1000
@@ -41,7 +41,7 @@ for j in range(M):
     Xr, _ = generator.generate(N, L, h)
     X, dW = generator.generate(N, L, h)
     w = np.zeros((N, L+1))
-    w[:, L] = np.fmax(Xr[:, maturity_idx, 0]-strike, 0)
+    w[:, L] = payout(Xr)
     delta_phi = np.zeros((N, L, d_x))
     for l in range(L-1, 0, -1):
         s = N * np.std(w[:, l + 1])
@@ -60,8 +60,9 @@ for j in range(M):
             for k2 in range(d_w):
                 F_est = -delta_phi[:, l, k1]*diffusion[:, k1, k2]
                 cv = cv + F_est * dW[:, l + 1, k2]
-    result_mc[j] = np.mean(np.fmax(X[:, maturity_idx, 0]-strike, 0))
-    result_mc_cv[j] = np.mean(np.fmax(X[:, maturity_idx, 0]-strike, 0) + cv)
+    f_T = payout(X)
+    result_mc[j] = np.mean(f_T)
+    result_mc_cv[j] = np.mean(f_T + cv)
     result_mc_cv_mean[j] = np.mean(cv)
     print('{j:d} smc={smc:.4f}, cv={vcv:.4f}, cv_mean={cvmean:.6f}'.format(j=j, smc=result_mc[j], vcv=result_mc_cv[j],
                                                                      cvmean=result_mc_cv_mean[j]))

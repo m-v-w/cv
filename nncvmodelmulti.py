@@ -27,11 +27,7 @@ class NNCVMultiModel(object):
             ])
             self.trainable_weights.extend(m.trainable_weights)
             self.models.append(m)
-        if payout.requires_measure:
-            u, _ = generator.generate(N, L, h)
-            self.f = tf.constant(payout(x, u), dtype=tf.float32)
-        else:
-            self.f = tf.constant(payout(x), dtype=tf.float32)
+        self.f = tf.constant(payout(x), dtype=tf.float32)
         self.loss_fn = VarianceError()
         self.pred_y = tf.zeros((N))
 
@@ -39,7 +35,7 @@ class NNCVMultiModel(object):
         result = []
         L = x.shape[1]
         for l in range(L):
-            result.append(self.models[l](x[:, l:(l+1), :]))
+            result.append(self.models[l](x[:, l, :]))
         return tf.squeeze(tf.stack(result, axis=1))
 
     def trainstep(self, optimizer, tX):
