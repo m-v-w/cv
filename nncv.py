@@ -11,7 +11,7 @@ from matplotlib import pyplot as plot
 print("TensorFlow version: {}".format(tf.__version__))
 print("Eager execution: {}".format(tf.executing_eagerly()))
 
-h = 0.02
+h = 1 / 100
 L = int(5 / h)
 N = 1000
 Nr = 5000

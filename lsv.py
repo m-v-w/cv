@@ -6,9 +6,10 @@ from splines.SmoothSpline import SmoothSpline
 
 
 class LsvGenerator(IPathGenerator):
-    def __init__(self, r, kappa, v0, theta, xi, rho):
+    def __init__(self, r=0, kappa=9, v0=0.16*0.16, theta=0.16*0.16, xi=0.4, rho=-0.5):
         self.v_lower_bound = theta-xi**2/(2*kappa)
         print("Lower variance bound", self.v_lower_bound)
+        self.name = "lsv"
         self.market_vol = marketvol.MarketVol.load_csv()
         self.r = r
         self.kappa = kappa

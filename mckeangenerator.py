@@ -3,6 +3,9 @@ import numpy as np
 
 class IPathGenerator(object):
 
+    def __init__(self):
+        self.name = "unknown"
+
     def drift(self, X, t):
         pass
 
@@ -48,12 +51,14 @@ class IPathGenerator(object):
 
 class SimpleGenerator(IPathGenerator):
 
+    def __init__(self):
+        self.name = "normal"
+
     def drift(self, X, t):
         N = X.shape[0]
         x = X
         u_square = X.T ** 2
         result = (1 + u_square) * np.exp(-u_square / 2) + x * (-1) * np.exp(-u_square / 2)
-        # result = (1 + np.square(u)) * np.exp(-np.square(u) / 2) + x * (-1) * np.exp(-np.square(u) / 2)
         return np.mean(result, axis=1)
 
     def diffusion(self, X, t):
@@ -79,6 +84,7 @@ class SimpleCorrGenerator(IPathGenerator):
 
     def __init__(self, rho):
         self.rho = rho
+        self.name = "normal_corr"
 
     def drift(self, X, t):
         n = X.shape[0]

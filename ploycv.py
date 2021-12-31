@@ -6,20 +6,18 @@ import mckeangenerator
 import splines.BucketSpline
 import splines.GridSpline
 from payouts import CallPayout
+from splines.polygons import hermite_poly, hermite_deriv_poly
 
 h = 1 / 100
 L = int(5 / h)
 N = 1000
 M = 100
 
-generator = lsv.LsvGenerator()
-strike = generator.market_vol.s0
-#generator = mckeangenerator.SimpleCorrGenerator(-0.5)
-#strike = 0.5
+generator = mckeangenerator.SimpleGenerator()
+strike = 0.5
 payout = CallPayout(strike)
 
-smooth = 0.5
-y_buckets = 5
+K = 5
 result_mc = np.zeros(M)
 result_mc_cv = np.zeros(M)
 result_mc_cv_mean = np.zeros(M)
@@ -31,14 +29,13 @@ for j in range(M):
     w[:, L] = payout(Xr)
     delta_phi = np.zeros((N, L, d_x))
     for l in range(L-1, 0, -1):
-        s = N * np.std(w[:, l + 1])
-        #spline = splines.BucketSpline.BucketSpline(Xr[:, l, :], w[:, l + 1], y_buckets=y_buckets, smooth=smooth, normalizedsmooth=False)
-        spline = splines.GridSpline.GridSpline(Xr[:, l, :], w[:, l + 1])
-        w[:, l] = spline(Xr[:, l, :])
-        dbg = np.mean((w[:, l]-w[:, l+1])**2)
         for k in range(d_x):
-            delta_phi[:, l, k] = spline(X[:, l, :], daxis=k)
-        print('{l:d} s={s:.2f}, dbg={dbg:.6f}, res={res:.2f}, max-coeff={mc:.2f}, dmin={dmin:.2f}, dmax={dmax:.2f}'.format(l=l, s=s, dbg=dbg, res=spline.get_residual(), mc=np.max(np.abs(spline.get_coeffs())), dmin=np.min(delta_phi[:, l, 0]), dmax=np.max(delta_phi[:, l, 0])))
+            base = hermite_poly(Xr[:, l, k], K)
+            fit, _, _, _ = np.linalg.lstsq(base, w[:, l + 1], rcond=None)
+            w[:, l] = base @ fit
+            deriv_base = hermite_deriv_poly(X[:, l, k], K)
+            delta_phi[:, l, k] = np.matmul(deriv_base, fit)
+        # print('{l:d} s={s:.2f}, dbg={dbg:.6f}, res={res:.2f}, max-coeff={mc:.2f}, dmin={dmin:.2f}, dmax={dmax:.2f}'.format(l=l, s=s, dbg=dbg, res=spline.get_residual(), mc=np.max(np.abs(spline.get_coeffs())), dmin=np.min(delta_phi[:, l, 0]), dmax=np.max(delta_phi[:, l, 0])))
 
     cv = np.zeros(N)
     for l in range(L):
@@ -54,8 +51,7 @@ for j in range(M):
     print('{j:d} smc={smc:.4f}, cv={vcv:.4f}, cv_mean={cvmean:.6f}'.format(j=j, smc=result_mc[j], vcv=result_mc_cv[j],
                                                                      cvmean=result_mc_cv_mean[j]))
 
-np.savez("data/spline_"+generator.name+"_"+payout.name+".npz", result_mc, result_mc_cv)
-print(smooth)
+np.savez("data/poly_"+generator.name+"_"+payout.name+".npz", result_mc, result_mc_cv)
 print(np.mean(result_mc))
 print(np.std(result_mc))
 print(np.mean(result_mc_cv))

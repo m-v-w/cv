@@ -1,28 +1,72 @@
 import numpy as np
 from matplotlib import pyplot as plot
 
+plots_lsv_call = [
+    {
+        "file": "data/smc_lsv_call.npz",
+        "key": "arr_0",
+        "title": "SMC"
+    },
+    {
+        "file": "data/spline_lsv_call.npz",
+        "key": "arr_1",
+        "title": "Spline"
+    },
+    {
+        "file": "data/nncv_lsv_call.npz",
+        "key": "arr_1",
+        "title": "NNCV"
+    }
+]
+plots_normal_call = [
+    {
+        "file": "data/smc_normal_call.npz",
+        "key": "arr_0",
+        "title": "SMC"
+    },
+    {
+        "file": "data/spline_normal_call.npz",
+        "key": "arr_1",
+        "title": "Spline"
+    },
+    {
+        "file": "data/nncv_normal_call.npz",
+        "key": "arr_1",
+        "title": "NNCV"
+    }
+]
+plots_normal_trigonometric = [
+    {
+        "file": "data/smc_normal_trigonometric.npz",
+        "key": "arr_0",
+        "title": "SMC"
+    },
+    {
+        "file": "data/spline_normal_trigonometric.npz",
+        "key": "arr_1",
+        "title": "Spline"
+    },
+    {
+        "file": "data/nncv_normal_trigonometric.npz",
+        "key": "arr_1",
+        "title": "NNCV"
+    }
+]
 
-nncvnpz = np.load("data/nncv_f1.npz")
-#Matlab output: refV towerReg towerRegV2 varMinSpline2
-regr = np.loadtxt("data/matlab_f1.csv",delimiter=',')
-outfile = "plots/nncv_f1.eps"
+
+def plot_box(list, name):
+    data = []
+    labels = []
+    for t in list:
+        np_data = np.load(t["file"])
+        data.append(np_data[t["key"]])
+        labels.append(t["title"])
+        print('%s, %s: mean=%.6f std=%.6f' % (name, t["title"], np.mean(np_data[t["key"]]), np.std(np_data[t["key"]])))
+    len = data.__len__()
+    plot.boxplot(data)
+    plot.xticks(range(1, len + 1), labels)
+    plot.savefig("plots/"+name+".eps", format='eps')
+    plot.show()
 
 
-result_mc = nncvnpz['arr_0']
-result_nncv = nncvnpz['arr_1']
-regr_mc = regr[:, 0]
-regr_tower_poly = regr[:, 1]
-regr_tower_spline = regr[:, 2]
-regr_varmin_spline = regr[:, 3]
-plotData = [result_mc, result_nncv, regr_tower_poly, regr_tower_spline, regr_varmin_spline]
-labels = ['SMC', 'Neural Network', 'Polynom', 'Spline', 'Spline var-min']
-
-len = plotData.__len__()
-plot.boxplot(plotData)
-plot.xticks(range(1,len+1), labels)
-plot.savefig(outfile)
-plot.show()
-
-for i in range(len):
-    print('%s: mean=%2.6f std=%2.6f' % (labels[i], np.mean(plotData[i]), np.std(plotData[i])))
-print('Tower-Poly: mean=%2.6f std=%2.6f' % (np.mean(regr_tower_poly), np.std(regr_tower_poly)))
+plot_box(plots_call, "lsv_calls")
