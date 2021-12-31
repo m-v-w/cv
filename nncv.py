@@ -12,7 +12,7 @@ print("TensorFlow version: {}".format(tf.__version__))
 print("Eager execution: {}".format(tf.executing_eagerly()))
 
 h = 0.02
-L = int(1 / h)
+L = int(5 / h)
 N = 1000
 Nr = 5000
 M = 100

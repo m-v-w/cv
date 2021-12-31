@@ -12,7 +12,8 @@ class GridSpline(object):
         #m = n/np.std(z)
         smooth = n+np.sqrt(2*n)
         self.tck, self.fp, ier, msg = bisplrep(x[:, 0].flatten(), x[:, 1].flatten(), z.flatten(), task=0, s=smooth, tx=self.x_knots, ty=self.y_knots, full_output=True)#, kx=3, ky=3, task=-1, s=smooth)
-        print(msg)
+        if ier > 0:
+            print(msg)
 
     def __call__(self, X, dx=0, dy=0, daxis=None):
         if not daxis is None:

@@ -103,65 +103,6 @@ class MarketVol(object):
         #                                    bounds_error=False, fill_value=None)
         self.s0 = s0
 
-    def fix_slope(self):
-        '''
-     public void fixSurface(double[] vector, Date evalDate,Date[] expirations, DayCounter dayCounter,double strike) throws JOptimizerException {
-        double[] t = new double[expirations.length];
-        double[][] P = new double[vector.length][vector.length];
-        double[] y = new double[vector.length];
-        ConvexMultivariateRealFunction[] inequalities = new ConvexMultivariateRealFunction[y.length];
-        double[] g = new double[y.length];
-        double[] x0 = new double[y.length];
-        g[0] = -1;
-        // x_j <= x_{j+1}
-        inequalities[0] = new LinearMultivariateRealFunction(g, 0);
-        t[0] = dayCounter.yearFraction(evalDate,expirations[0]);
-        boolean inconsistent = false;
-        for (int j = 0; j < vector.length; j++) {
-            if(j < y.length-1)
-                t[j+1] = dayCounter.yearFraction(evalDate,expirations[j+1]);
-            P[j][j]=1;
-            y[j] = -vector[j] * vector[j] * t[j];
-            x0[j] = -y[j];
-            if(j > 0 && y[j] > y[j-1]) {
-                logger.info("order on strike " + strike + " " + expirations[j - 1] + " (" + t[j - 1] + " years) " + (-y[j - 1]) + " vs. "
-                        + expirations[j] + " (" + t[j] + " years)" + (-y[j]));
-                inconsistent=true;
-            }
-            if(j < y.length-1) {
-                g = new double[y.length];
-                g[j] = 1;
-                g[j + 1] = -1;
-                // x_j <= x_{j+1}
-                inequalities[j+1] = new LinearMultivariateRealFunction(g, 0);
-            }
-        }
-        if(inconsistent) {
-            PDQuadraticMultivariateRealFunction objectiveFunction = new PDQuadraticMultivariateRealFunction(P, y, 0);
-
-            OptimizationRequest or = new OptimizationRequest();
-            or.setF0(objectiveFunction);
-            or.setToleranceFeas(1.E-12);
-            or.setTolerance(1.E-12);
-            or.setFi(inequalities);
-            or.setInitialPoint(x0);
-
-            //optimization
-            JOptimizer opt = new JOptimizer();
-            opt.setOptimizationRequest(or);
-            double[] x;
-            try {
-                opt.optimize();
-                x = opt.getOptimizationResponse().getSolution();
-            } catch(JOptimizerException e) {
-                x = fixSurfaceFailover(t,x0);
-            }
-
-            for (int j = 0; j < vector.length; j++)
-                vector[j] = Math.sqrt(x[j] / t[j]);
-        }
-    }'''
-
     def eval(self, y, t, dx=0, dy=0):
         if t < self.times[1]:
             v = self.spline(y, self.times[1], dx, dy)
@@ -218,11 +159,14 @@ class MarketVol(object):
         y_space = np.linspace(self.times[1], self.times[-1], 100)
         local_vol = np.zeros((x_space.size, y_space.size))
         for i in range(x_space.size):
+            x = np.exp(x_space[i]) * self.s0
             for j in range(y_space.size):
-                local_vol[i, j] = self.dupire_vol(y_space[j], x_space[i])
+                local_vol[i, j] = self.dupire_vol(y_space[j], x)
         return local_vol, x_space, y_space
 
-    def dupire_vol(self, t, y):
+    def dupire_vol(self, t, x):
+        forward = self.s0
+        y = np.log(x/forward)
         t = min(self.times[-2], max(t, self.times[1]))
         y = min(self.moneyness[-2], max(y, self.moneyness[1]))
         dwdt = self.eval(y, t, dx=0, dy=1)

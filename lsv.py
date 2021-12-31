@@ -2,6 +2,7 @@ import numpy as np
 import scipy.interpolate
 import marketvol
 from mckeangenerator import IPathGenerator
+from splines.SmoothSpline import SmoothSpline
 
 
 class LsvGenerator(IPathGenerator):
@@ -17,9 +18,13 @@ class LsvGenerator(IPathGenerator):
         self.rho = rho
 
     def drift(self, X, t):
-        d1 = self.r * X[:, 0]
-        d2 = self.kappa * (self.theta - X[:, 1])
-        return np.stack((d1, d2), axis=1)
+        x = X[:, 0]
+        v = X[:, 1]
+        n = x.shape[0]
+        result = np.empty((n, 2))
+        result[:, 0] = self.r * x
+        result[:, 1] = self.kappa * (self.theta - v)
+        return result
 
     def diffusion(self, X, t):
         x = X[:,0]
@@ -27,11 +32,11 @@ class LsvGenerator(IPathGenerator):
         n = x.shape[0]
         cond_v = np.ones(n)*self.v0
         if t > 0:
-            order = np.argsort(x)
+            #order = np.argsort(x)
             #csaps(x[order], v[order], smooth=0.9)
-            spline = scipy.interpolate.UnivariateSpline(x[order], v[order])
-            for i in range(n):
-                cond_v[i] = np.fmax(self.v_lower_bound, spline(x[i]))
+            #spline = scipy.interpolate.UnivariateSpline(x[order], v[order])
+            spline = SmoothSpline(x, v)
+            cond_v = np.fmax(self.v_lower_bound, spline(x))
         dupire = np.zeros(n)
         for i in range(n):
             dupire[i] = self.market_vol.dupire_vol(t, x[i])
@@ -54,6 +59,17 @@ class LsvGenerator(IPathGenerator):
             diffusion = self.diffusion(x[:, l-1, :], t)
             x[:, l, 0] = x[:, l - 1, 0] + drift[:, 0] * h + diffusion[:, 0, 0] * dW[:, l - 1, 0] + diffusion[:, 0, 1] * dW[:, l - 1, 1]
             x[:, l, 1] = np.fmax(self.v_lower_bound, x[:, l - 1, 1] + drift[:, 1] * h + diffusion[:, 1, 0] * dW[:, l - 1, 0] + diffusion[:, 1, 1] * dW[:, l - 1, 1])
+        return x, dW
+
+    def generate_localvol(self, N, L, h):
+        x0 = self.market_vol.s0
+        x = np.zeros((N, L + 1))
+        x[:, 0] = x0
+        dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1))
+        for l in range(1, L + 1):
+            t = (l-1)*h
+            for i in range(N):
+                x[i, l] = x[i, l - 1] + x[i, l-1] * self.r * h + x[i, l-1] * self.market_vol.dupire_vol(t, x[i, l - 1]) * dW[i, l - 1]
         return x, dW
 
     def get_dimensions(self):

@@ -24,10 +24,6 @@ strike = generator.market_vol.s0
 #generator = mckeangenerator.SimpleCorrGenerator(-0.5)
 #strike = 0.5
 payout = CallPayout(strike)
-h = 0.02
-L = int(1 / h)
-N = 1000
-M = 100
 
 maturity_idx = -1
 #smooth = 0.0000000001
