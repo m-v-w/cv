@@ -53,3 +53,18 @@ MC Ref: mean=930.532029 std=24.865247
 MC CV: mean=930.552681 std=21.183632
 MC CV-Mean: mean=-0.020653 std=22.733428
 
+nncv lsv call N=1000 N_R=1000 M=100 L=500
+MC Ref: mean=928.253227 std=25.363313
+MC CV: mean=927.238327 std=25.618588
+MC CV-Mean: mean=1.014900 std=21.095914
+
+nncv lsv call N=1000 N_R=1000 M=100 L=50
+MC Ref: mean=341.087406 std=12.518135
+MC CV: mean=341.647055 std=9.634095
+MC CV-Mean: mean=-0.559650 std=8.818943
+
+spline lsv call N=1000 N_R=1000 M=100 L=50
+MC Ref: mean=342.036476 std=14.614498
+MC CV: mean=338.178046 std=12.953230
+MC CV-Mean: mean=-3.858430 std=20.990618
+

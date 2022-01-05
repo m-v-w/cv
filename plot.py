@@ -28,6 +28,23 @@ plots_lsv_call = [
         "title": "NNCV"
     }
 ]
+plots_lsv_call_50 = [
+    {
+        "file": "data/spline_lsv_call_50.npz",
+        "key": "arr_0",
+        "title": "Flat SMC"
+    },
+    {
+        "file": "data/spline_lsv_call_50.npz",
+        "key": "arr_1",
+        "title": "Spline"
+    },
+    {
+        "file": "data/nncv_lsv_call_50.npz",
+        "key": "arr_1",
+        "title": "NNCV"
+    }
+]
 plots_normal_call = [
     {
         "file": "data/smc_normal_call.npz",
@@ -118,6 +135,9 @@ def plot_box(list, name):
 
 
 plot_box(plots_normal_call, "normal_call")
-plot_box(plots_normal_trigonometric, "normal_trigonometric")
-plot_box(plots_normal_corr_call, "lsv_calls")
 plot_box(plots_lsv_call, "lsv_calls")
+plot_box(plots_lsv_call_50, "lsv_calls_50")
+
+#plot_box(plots_normal_trigonometric, "normal_trigonometric")
+#plot_box(plots_normal_corr_call, "lsv_calls")
+
