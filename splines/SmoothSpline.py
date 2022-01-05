@@ -21,7 +21,7 @@ class SmoothSpline(object):
                 dx = 1
             else:
                 raise ValueError("invalid daxis")
-        result = self.z_norm*splev(X, self.tck, der=dx)
+        result = self.z_norm*splev(X.flatten(), self.tck, der=dx)
         return result
 
     def get_residual(self):

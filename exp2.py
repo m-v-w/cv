@@ -45,3 +45,6 @@ for j in range(M):
 
 print('MC: mean=%2.6f std=%2.6f' % (np.mean(result_mc), np.var(result_mc)))
 print('MC-CV: mean=%2.6f std=%2.6f' % (np.mean(result_mc_cv), np.var(result_mc_cv)))
+
+
+

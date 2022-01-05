@@ -40,8 +40,7 @@ class IPathGenerator(object):
         d_w = dw.shape[2]
         B = np.zeros((N, L, d_x))
         for l in range(L):
-            xm = np.tile(x[:, l], (N, 1))
-            t = (l - 1) * h
+            t = l * h
             diffusion = self.diffusion(x[:, l, :], t)
             for k_x in range(d_x):
                 for k_w in range(d_w):
