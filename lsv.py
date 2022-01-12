@@ -27,6 +27,15 @@ class LsvGenerator(IPathGenerator):
         result[:, 1] = self.kappa * (self.theta - v)
         return result
 
+    def brownian_cov(self, X, t):
+        n = X.shape[0]
+        result = np.empty((n, 2, 2))
+        result[:, 0, 0] = 1
+        result[:, 0, 1] = 0
+        result[:, 1, 0] = self.rho
+        result[:, 1, 1] = np.sqrt(1 - self.rho ** 2)
+        return result
+
     def diffusion(self, X, t):
         x = X[:,0]
         v = X[:,1]
@@ -48,18 +57,30 @@ class LsvGenerator(IPathGenerator):
         result[:, 1, 1] = self.xi * np.sqrt(v) * np.sqrt(1 - self.rho ** 2)
         return result
 
-    def generate(self, N, L, h):
+    def generate(self, N, L, h, return_diffusion_delta=False):
         x0 = self.market_vol.s0
         x = np.zeros((N, L + 1, 2))
         x[:, 0, 0] = x0
         x[:, 0, 1] = self.v0
         dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1, 2))
+        B = np.empty((N, L+1, 2))
+
         for l in range(1, L + 1):
             t = (l-1)*h
             drift = self.drift(x[:, l-1, :], t)
             diffusion = self.diffusion(x[:, l-1, :], t)
             x[:, l, 0] = x[:, l - 1, 0] + drift[:, 0] * h + diffusion[:, 0, 0] * dW[:, l - 1, 0] + diffusion[:, 0, 1] * dW[:, l - 1, 1]
             x[:, l, 1] = np.fmax(self.v_lower_bound, x[:, l - 1, 1] + drift[:, 1] * h + diffusion[:, 1, 0] * dW[:, l - 1, 0] + diffusion[:, 1, 1] * dW[:, l - 1, 1])
+            B[:, l-1, 0] = diffusion[:, 0, 0] * dW[:, l-1, 0] + diffusion[:, 0, 1] * dW[:, l-1, 1]
+            B[:, l-1, 1] = diffusion[:, 1, 0] * dW[:, l-1, 0] + diffusion[:, 1, 1] * dW[:, l-1, 1]
+        if return_diffusion_delta:
+            diffusion = self.diffusion(x[:, -1, :], t)
+            B[:, -1, 0] = diffusion[:, 0, 0] * dW[:, -1, 0] + diffusion[:, 0, 1] * dW[:, -1, 1]
+            B[:, -1, 1] = diffusion[:, 1, 0] * dW[:, -1, 0] + diffusion[:, 1, 1] * dW[:, -1, 1]
+            test = np.empty((N, L + 1, 2))
+            test[:, :, 0] = dW[:, :, 0]
+            test[:, :, 1] = dW[:, :, 0] * self.rho + dW[:, :, 1] * np.sqrt(1 - self.rho ** 2)
+            return x, dW, B
         return x, dW
 
     def generate_localvol(self, N, L, h):

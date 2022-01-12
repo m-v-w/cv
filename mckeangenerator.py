@@ -17,7 +17,7 @@ class IPathGenerator(object):
         """
         pass
 
-    def generate(self, N, L, h):
+    def generate(self, N, L, h, return_diffusion_delta=False):
         pass
 
     def get_dimensions(self):
@@ -67,7 +67,7 @@ class SimpleGenerator(IPathGenerator):
     def get_dimensions(self):
         return 1, 1
 
-    def generate(self, N, L, h):
+    def generate(self, N, L, h, return_diffusion_delta = False):
         x0 = 0
         x = np.zeros((N, L + 1, 1))
         x[:, 0, 0] = x0
@@ -76,6 +76,8 @@ class SimpleGenerator(IPathGenerator):
             t = (l - 1) * h
             drift = self.drift(x[:, l - 1, :], t)
             x[:, l, 0] = x[:, l - 1, 0] + drift * h + dW[:, l - 1, 0]
+        if return_diffusion_delta:
+            return x, dW, dW  # TODO delta diffusion indexing
         return x, dW
 
 
@@ -117,13 +119,18 @@ class SimpleCorrGenerator(IPathGenerator):
     def get_dimensions(self):
         return 2, 2
 
-    def generate(self, N, L, h):
+    def generate(self, N, L, h, return_diffusion_delta=False):
         x = np.zeros((N, L + 1, 2))
         dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1, 2))
+        B = np.empty((N, L, 2))
         for l in range(1, L + 1):
             t = (l - 1) * h
             drift = self.drift(x[:, l - 1, :], t)
             diffusion = self.diffusion(x[:, l - 1, :], t)
             x[:, l, 0] = x[:, l - 1, 0] + drift[:, 0] * h + diffusion[:, 0, 0] * dW[:, l - 1, 0] + diffusion[:, 0, 1] * dW[:, l - 1, 1]
             x[:, l, 1] = x[:, l - 1, 1] + drift[:, 1] * h + diffusion[:, 1, 0] * dW[:, l - 1, 0] + diffusion[:, 1, 1] * dW[:, l - 1, 1]
+            B[:, l - 1, 0] = diffusion[:, 0, 0] * dW[:, l, 0] + diffusion[:, 0, 1] * dW[:, l, 1]
+            B[:, l - 1, 1] = diffusion[:, 1, 0] * dW[:, l, 0] + diffusion[:, 1, 1] * dW[:, l, 1]
+        if return_diffusion_delta:
+            return x, dW, B
         return x, dW

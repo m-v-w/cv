@@ -7,6 +7,7 @@ class IPayout(object):
 
     def __init__(self):
         self.name = "unknown"
+        self.h = None
 
     def __call__(self, x, u=None):
         """
@@ -27,16 +28,37 @@ class CallPayout(IPayout):
     def __call__(self, x, u=None):
         return np.fmax(x[:, self.maturity_idx, 0]-self.strike, 0)
 
+    def gradient(self, x):
+        result = np.zeros((x.shape[0], x.shape[2]))
+        result[:, 0] = (x[:, self.maturity_idx, 0] >= self.strike).astype(x.dtype)
+        return result
+
+
+class SquaredPayout(IPayout):
+
+    def __init__(self, maturity_idx=-1):
+        self.name = "squared"
+        self.maturity_idx = maturity_idx
+
+    def __call__(self, x, u=None):
+        return x[:, self.maturity_idx, 0]**2
+
+    def gradient(self, x):
+        result = np.zeros((x.shape[0], x.shape[2]))
+        result[:, 0] = 2*x[:, self.maturity_idx, 0]
+        return result
+
 
 class TrigonometricPayout(IPayout):
 
-    def __init__(self, h, generator: IPathGenerator, maturity_idx=-1):
+    def __init__(self, generator: IPathGenerator, maturity_idx=-1):
         self.name = "trigonometric"
         self.generator = generator
         self.maturity_idx = maturity_idx
-        self.h = h
 
     def __call__(self, x, u=None):
+        if self.h is None:
+            raise ValueError("property h needs to be set")
         N = x.shape[0]
         if u is None:
             L = x.shape[1]

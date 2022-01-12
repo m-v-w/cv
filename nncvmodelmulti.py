@@ -46,3 +46,24 @@ class NNCVMultiModel(object):
             return self.loss_fn(K.sum(x * self.b, axis=1) - self.f, self.pred_y)
         else:
             return self.loss_fn(K.sum(K.sum(x * self.b, axis=2), axis=1) - self.f, self.pred_y)
+
+
+def loss_std(x, b, f):
+    return tf.math.reduce_std(f - tf.math.reduce_sum(tf.math.reduce_sum(x * b, axis=2), axis=1))
+
+
+def normal_kernel(x):
+    return tf.math.exp(-0.5*tf.math.square(x))
+
+
+def flatten_time(x, h):
+    Nr = x.shape[0]
+    L = x.shape[1]
+    return attach_time(x, h).reshape((Nr*L, x.shape[2]+1))
+
+
+def attach_time(x, h):
+    Nr = x.shape[0]
+    L = x.shape[1]
+    times = np.tile(h*np.array(range(L)), (Nr, 1)).reshape((Nr, L, 1))
+    return np.concatenate((x, times), axis=2)

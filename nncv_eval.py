@@ -12,10 +12,8 @@ def nncv_run(args: SimulationArgs):
     generator = args.generator
     h = args.h
     payout = args.payout
-    d_x, d_w = generator.get_dimensions()
-    X, deltaW = generator.generate(N, L, h)
+    X, deltaW, b = generator.generate(N, L, h, return_diffusion_delta=True)
     tX = tf.constant(X[:, 1:, :], dtype=tf.float32)
-    b = generator.generate_diffusions(X, deltaW, h)
     w = model(tX).numpy()
     if len(w.shape) > 2:
         cv = np.sum(w * b, axis=(1, 2))

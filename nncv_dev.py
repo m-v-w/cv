@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 import mckeangenerator
 import lsv
-from nncvmodelmulti import NNCVMultiModel, loss_std, normal_kernel
+from nncvmodelmulti import loss_std, normal_kernel, flatten_time, attach_time
 from payouts import CallPayout, TrigonometricPayout
 from runner import SimulationArgs, print_results
 from varminmodel import VarMinModel
@@ -33,38 +33,37 @@ h = args.h
 batch_size = 100
 activation = 'sigmoid'
 output_activation = 'linear'
-hidden_nodes = 100
+hidden_nodes = 1000
 x, dw, diffusion_delta = generator.generate(Nr, L, h, return_diffusion_delta=True)
 test_x, test_dw, test_diffusion_delta = generator.generate(Nr, L, h, return_diffusion_delta=True)
-train_data = tf.data.Dataset.from_tensor_slices((x.astype(np.float32), diffusion_delta.astype(np.float32), payout(x).astype(np.float32)))
-test_data = tf.data.Dataset.from_tensor_slices((test_x.astype(np.float32), test_diffusion_delta.astype(np.float32), payout(test_x).astype(np.float32))).batch(batch_size)
+train_data = tf.data.Dataset.from_tensor_slices((attach_time(x, h).astype(np.float32), diffusion_delta.astype(np.float32), payout(x).astype(np.float32)))
+test_data = tf.data.Dataset.from_tensor_slices((attach_time(test_x, h).astype(np.float32), test_diffusion_delta.astype(np.float32), payout(test_x).astype(np.float32))).batch(batch_size)
 train_batches = train_data.shuffle(Nr).batch(batch_size)
 train_loss = tf.keras.metrics.Mean('train_loss', dtype=tf.float32)
 test_loss = tf.keras.metrics.Mean('test_loss', dtype=tf.float32)
 initial_loss = tf.keras.metrics.Mean('initial_loss', dtype=tf.float32)
 for (x_test, b_test, f_test) in test_data:
-    l = loss_std(tf.zeros(x_test.shape), b_test, f_test)
+    l = loss_std(tf.zeros(b_test.shape), b_test, f_test)
     initial_loss(l)
 print("Initial test lost %.10f" % initial_loss.result())
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=0.03*30,
-    decay_steps=5*round(3*Nr/batch_size),
+    initial_learning_rate=0.1,
+    decay_steps=round(3*Nr/batch_size),
     decay_rate=0.95)
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 d_x, d_w = generator.get_dimensions()
 model = tf.keras.Sequential([
-    tf.keras.layers.Input((L+1, d_x)),
-    tf.keras.layers.LocallyConnected1D(hidden_nodes, 1, activation='sigmoid'),
-    tf.keras.layers.LocallyConnected1D(hidden_nodes, 1, activation='sigmoid'),
-    tf.keras.layers.LocallyConnected1D(hidden_nodes, 1, activation='sigmoid'),
-    tf.keras.layers.LocallyConnected1D(d_x, 1, activation=output_activation)
+    tf.keras.layers.Input((L+1, d_x+1)),
+    tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(hidden_nodes, activation=activation)),
+    tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(hidden_nodes, activation=activation)),
+    tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(d_x, activation='linear'))
 ])
 log_dir = "logs/gradient_tape/" + datetime.now().strftime("%Y%m%d-%H%M%S") + "-"+args.generator.name+"-"+args.payout.name+"-%d" % args.L
 train_summary_writer = tf.summary.create_file_writer(log_dir)
 with train_summary_writer.as_default():
     tf.summary.text('activation', activation, step=0)
     tf.summary.text('output_activation', output_activation, step=0)
-epochs = range(1000)
+epochs = range(100)
 for epoch in epochs:
     # subset = train_batches.shuffle(Nr).take(int(50/4))
     for (batch_x, batch_b, batch_f) in train_batches:
@@ -92,7 +91,7 @@ result_mc_cv_mean = np.zeros(M)
 
 for j in range(M):
     X, _, diffusion_delta = generator.generate(N, L, h, return_diffusion_delta=True)
-    prediction = model.predict(X)
+    prediction = model.predict(attach_time(X, h))
     #tX = tf.constant(X, dtype=tf.float32)
     b = diffusion_delta
     w = prediction # model(tX).numpy()
