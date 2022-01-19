@@ -1,4 +1,6 @@
 import sys
+
+import lsv_rkhs
 import mckeangenerator
 # from nncv_eval import nncv_run
 from payouts import CallPayout, TrigonometricPayout, SquaredPayout
@@ -11,19 +13,19 @@ from smc import smc_run
 from splinecv import spline_run
 
 if __name__ == '__main__':
-    simulation_name = "poly"
+    simulation_name = "spline"
     M = 100
     #generator = mckeangenerator.SimpleGenerator()
     #generator = mckeangenerator.SimpleCorrGenerator(-0.5)
-    #payout = TrigonometricPayout(generator)
+    #payout = CallPayout(0.5)
     #payout = SquaredPayout()
-    generator = lsv.LsvGenerator()
+    generator = lsv_rkhs.LsvGenerator()
     payout = CallPayout(generator.market_vol.s0)
 
     args = SimulationArgs(generator, payout)
     arg_list = [args] * M
     pool_obj = multiprocessing.Pool(processes=6)
-    result_list = pool_obj.map(poly_run, arg_list)
+    result_list = pool_obj.map(spline_run, arg_list)
 
     result_mc = np.array([result_list[i][0] for i in range(M)])
     result_mc_cv = np.array([result_list[i][1] for i in range(M)])

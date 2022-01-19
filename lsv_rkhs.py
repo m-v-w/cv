@@ -1,16 +1,19 @@
+import warnings
+
 import numpy as np
 import scipy.interpolate
 import marketvol
 from mckeangenerator import IPathGenerator
 from splines.SmoothSpline import SmoothSpline
+import rkhs.finance
 
 
 class LsvGenerator(IPathGenerator):
     def __init__(self, r=0, kappa=9, v0=0.16*0.16, theta=0.16*0.16, xi=0.4, rho=-0.5, market_vol=marketvol.MarketVol.load_csv()):
-        self.v_lower_bound = 0.01 * 0.01
-        v_level = theta - xi ** 2 / (2 * kappa)
+        self.v_lower_bound = 0.01*0.01
+        v_level = theta-xi**2/(2*kappa)
         print("Lower variance bound set to ", self.v_lower_bound)
-        self.name = "lsv"
+        self.name = "lsvrkhs"
         self.market_vol = market_vol
         self.r = r
         self.kappa = kappa
@@ -18,6 +21,10 @@ class LsvGenerator(IPathGenerator):
         self.theta = theta
         self.xi = xi
         self.rho = rho
+        self.lambd = 0.0001
+        self.varkernel = 5
+        self.Nkernels = 20
+        self.withconstant = True
 
     def drift(self, X, t):
         x = X[:, 0]
@@ -38,24 +45,30 @@ class LsvGenerator(IPathGenerator):
         return result
 
     def diffusion(self, X, t):
-        x = X[:,0]
-        v = X[:,1]
+        x = X[:, 0]
+        v = X[:, 1]
         n = x.shape[0]
-        cond_v = np.ones(n)*self.v0
-        if t > 0:
-            #order = np.argsort(x)
-            #csaps(x[order], v[order], smooth=0.9)
-            #spline = scipy.interpolate.UnivariateSpline(x[order], v[order])
-            spline = SmoothSpline(x, v)
-            cond_v = np.fmax(self.v_lower_bound, spline(x))
         dupire = np.zeros(n)
         for i in range(n):
             dupire[i] = self.market_vol.dupire_vol(t, x[i])
         result = np.empty((n, 2, 2))
-        result[:, 0, 0] = dupire / np.sqrt(cond_v) * x * np.sqrt(v)
+
+        eps = self.v_lower_bound
+        fsqY = np.maximum(v, eps)  # f^2(Y)
+        estimatedrift, estimatediffusion = rkhs.finance.mlambdaKRRfast(x, v, fsqY, self.lambd, self.varkernel, self.Nkernels, self.withconstant)
+
+        #driftpart = driftX(curtime, prevX) * h(curtime, prevY) / (np.maximum(eps, estimatedrift))
+        diffusionpart = x * dupire * np.sqrt(np.maximum(v, eps)) / (np.sqrt(np.maximum(eps, estimatediffusion)))
+        #resultX = prevX + driftpart * delta + diffusionpart * curnoiseX * sqrtdelta
+        #resultY = prevY + driftY(curtime, prevY) * delta + sigma2(curtime, prevY) * curnoiseY * sqrtdelta
+        diff_v = self.xi * np.sqrt(np.maximum(v, eps))
+        if np.max(diffusionpart) > 100000 or np.min(diffusionpart) < 0:
+            warnings.warn("outlier value")
+        result[:, 0, 0] = diffusionpart
         result[:, 0, 1] = 0
-        result[:, 1, 0] = self.xi * np.sqrt(v) * self.rho
-        result[:, 1, 1] = self.xi * np.sqrt(v) * np.sqrt(1 - self.rho ** 2)
+        result[:, 1, 0] = diff_v * self.rho
+        result[:, 1, 1] = diff_v * np.sqrt(1 - self.rho ** 2)
+
         return result
 
     def generate(self, N, L, h, return_diffusion_delta=False):
@@ -65,7 +78,6 @@ class LsvGenerator(IPathGenerator):
         x[:, 0, 1] = self.v0
         dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1, 2))
         B = np.empty((N, L+1, 2))
-
         for l in range(1, L + 1):
             t = (l-1)*h
             drift = self.drift(x[:, l-1, :], t)

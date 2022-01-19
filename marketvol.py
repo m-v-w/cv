@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
+import py_vollib_vectorized
 import scipy.interpolate
-import py_vollib.black_scholes_merton.implied_volatility as impl
 import csaps
 
 
@@ -18,6 +18,12 @@ class MarketVol(object):
         data_times = (data_dates - t0).astype(int) / 365
         return MarketVol()
 
+    def implied_volatility(self, price, S0, strike, T, r, q, flag):
+        iv = py_vollib_vectorized.vectorized_implied_volatility(price, S0, strike, T, \
+                                                                        r=r, flag=flag, q=q, on_error='warn',
+                                                                        model='black_scholes_merton', return_as='numpy')
+        return iv
+
     @staticmethod
     def load_csv():
         df = pd.read_csv("data/spx_24112021.csv", names=['expiry', 'strike', 'time', 'last', 'bid', 'ask'])
@@ -32,7 +38,7 @@ class MarketVol(object):
         for i in range(times.size):
             for j in range(strikes.size):
                 if prices[i, j] > s0 - strikes[j] + 0.01:
-                    v = impl.implied_volatility(prices[i, j], s0, strikes[j], times[i], 0, 0, 'c')
+                    v = self.implied_volatility(prices[i, j], s0, strikes[j], times[i], 0, 0, 'c')
                     implied_vol[i, j] = v
 
     def __init__(self, times, strikes, prices, s0):
@@ -43,7 +49,7 @@ class MarketVol(object):
             time_idx = time_map[i]
             strike_idx = strike_map[i]
             if prices[i] > s0-strike_axis[strike_idx]+0.01:
-                v = impl.implied_volatility(prices[i], s0, strike_axis[strike_idx], time_axis[time_idx], 0, 0, 'c')
+                v = self.implied_volatility(prices[i], s0, strike_axis[strike_idx], time_axis[time_idx], 0, 0, 'c')
                 implied_vol[time_idx, strike_idx] = v
 
         # clearup esoteric strikes and maturities

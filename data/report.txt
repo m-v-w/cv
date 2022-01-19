@@ -319,3 +319,81 @@ MC CV: mean=928.834876 std=87.470854
 MC CV-Mean: mean=-1.372521 std=110.668412
 Gain: 0.322199
 
+nncv lsv call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=339.684307 std=12.319423
+MC CV: mean=342.911173 std=6.690346
+MC CV-Mean: mean=-3.226866 std=5.636285
+Gain: 1.841373
+
+nncv lsv call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=339.684307 std=12.319423
+MC CV: mean=339.507035 std=12.078323
+MC CV-Mean: mean=0.177272 std=4.762646
+Gain: 1.019961
+
+nncv lsv call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=339.684307 std=12.319423
+MC CV: mean=341.445471 std=85.676979
+MC CV-Mean: mean=-1.761163 std=95.336057
+Gain: 0.143789
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.438392 std=0.018174
+MC CV: mean=0.438392 std=0.018174
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.438184 std=0.017637
+MC CV: mean=0.438594 std=0.018294
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 0.964083
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.440245 std=0.018677
+MC CV: mean=0.440659 std=0.018071
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.033518
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.436227 std=0.016091
+MC CV: mean=0.437782 std=0.019004
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 0.846717
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.435629 std=0.019613
+MC CV: mean=0.436516 std=0.017281
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.134967
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.437751 std=0.019366
+MC CV: mean=0.438329 std=0.017367
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.115108
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.436131 std=0.018611
+MC CV: mean=0.435541 std=0.017001
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.094697
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.436760 std=0.017135
+MC CV: mean=0.438227 std=0.017807
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 0.962291
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.437076 std=0.017418
+MC CV: mean=0.437305 std=0.017130
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.016837
+
+smc normal call N=10000 N_R=5000 M=100 L=50
+MC Ref: mean=0.437198 std=0.005660
+MC CV: mean=0.437426 std=0.005842
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 0.968893
+

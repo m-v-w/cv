@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import math
 from keras import Input
 
 import keras.backend as K
@@ -52,8 +53,11 @@ def loss_std(x, b, f):
     return tf.math.reduce_std(f - tf.math.reduce_sum(tf.math.reduce_sum(x * b, axis=2), axis=1))
 
 
+Z = math.sqrt(2*math.pi)
+
+
 def normal_kernel(x):
-    return tf.math.exp(-0.5*tf.math.square(x))
+    return tf.math.exp(-0.5*tf.math.square(x)) / Z
 
 
 def flatten_time(x, h):
@@ -67,3 +71,19 @@ def attach_time(x, h):
     L = x.shape[1]
     times = np.tile(h*np.array(range(L)), (Nr, 1)).reshape((Nr, L, 1))
     return np.concatenate((x, times), axis=2)
+
+
+def attach_time_log(x, h, s0):
+    Nr = x.shape[0]
+    L = x.shape[1]
+    times = np.tile(h*np.array(range(L)), (Nr, 1))
+    return np.stack((np.log(x[:, :, 0]/s0), x[:, :, 1], times), axis=-1)
+
+
+def log_val(x, s0):
+    return np.log(x[:, -1, 0]/s0)
+
+
+def log_payout(x, payout):
+    v = payout(x)
+    return np.log((v+payout.strike)/payout.strike)

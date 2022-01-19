@@ -20,7 +20,7 @@ payout = CallPayout(generator.market_vol.s0)
 args = SimulationArgs(generator, payout)
 result_mc, result_cv, result_cv_mean, delta_phi, coeff = spline_run(args, True)
 for i in range(5):
-    plot.plot(delta_phi[i, :, 0])
+    plot.plot(delta_phi[i, 1:, 0])
 plot.savefig("plots/delta_" + simulation_name + "_" + generator.name + ".eps", format='eps')
 plot.savefig("plots/delta_" + simulation_name + "_" + generator.name + ".png", format='png')
 plot.show()

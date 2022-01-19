@@ -3,6 +3,8 @@ import scipy.interpolate
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
+
+import lsv_rkhs
 import marketvol
 import lsv
 import py_vollib.black_scholes_merton.implied_volatility as impl
@@ -18,7 +20,7 @@ theta = 0.16*0.16
 xi = 0.4
 rho = -0.5
 
-lsv = lsv.LsvGenerator(r, kappa, v0, theta, xi, rho)
+lsv = lsv_rkhs.LsvGenerator(r, kappa, v0, theta, xi, rho)
 X, _ = lsv.generate(N, L, h)
 x = X[:, :, 0]
 v = X[:, :, 1]
@@ -47,11 +49,11 @@ for i in range(strike_grid.shape[0]):
         market_iv[i, j] = np.sqrt(lsv.market_vol.eval(y, t) / t)
         local_vol[i, j] = lsv.market_vol.dupire_vol(t, strike_grid[i, j])
         if simulated_itm[i, j] > 10 and simulated_prices[i, j] > lsv.market_vol.s0 - strike_grid[i, j]:
-            simulated_iv[i, j] = impl.implied_volatility(simulated_prices[i, j], lsv.market_vol.s0, strike_grid[i, j], time_idx_grid[i, j]*h, 0, 0, 'c')
+            simulated_iv[i, j] = lsv.market_vol.implied_volatility(simulated_prices[i, j], lsv.market_vol.s0, strike_grid[i, j], time_idx_grid[i, j]*h, 0, 0, 'c')
         else:
             simulated_iv[i, j] = np.nan
         if local_itm[i, j] > 10 and local_prices[i, j] > lsv.market_vol.s0 - strike_grid[i, j]:
-            simulated_local_iv[i, j] = impl.implied_volatility(local_prices[i, j], lsv.market_vol.s0,
+            simulated_local_iv[i, j] = lsv.market_vol.implied_volatility(local_prices[i, j], lsv.market_vol.s0,
                                                          strike_grid[i, j], time_idx_grid[i, j] * h, 0, 0, 'c')
         else:
             simulated_local_iv[i, j] = np.nan
