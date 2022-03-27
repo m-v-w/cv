@@ -15,12 +15,12 @@ from splinecv import spline_run
 if __name__ == '__main__':
     simulation_name = "spline"
     M = 100
-    #generator = mckeangenerator.SimpleGenerator()
+    generator = mckeangenerator.SimpleGenerator()
     #generator = mckeangenerator.SimpleCorrGenerator(-0.5)
-    #payout = CallPayout(0.5)
+    payout = CallPayout(0.5)
     #payout = SquaredPayout()
-    generator = lsv_rkhs.LsvGenerator()
-    payout = CallPayout(generator.market_vol.s0)
+    #generator = lsv_rkhs.LsvGenerator()
+    #payout = CallPayout(generator.market_vol.s0)
 
     args = SimulationArgs(generator, payout)
     arg_list = [args] * M
