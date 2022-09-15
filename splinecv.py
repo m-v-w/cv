@@ -46,11 +46,12 @@ def spline_run(args: SimulationArgs, return_derivative=False):
         diffusion = generator.diffusion(X[:, l, :], l * h)  # TODO
         for k1 in range(d_x):
             for k2 in range(d_w):
-                F_est = -delta_phi[:, l, k1] * diffusion[:, k1, k2]
+                ff = np.mean(delta_phi[:, l, k1])
+                F_est = -ff * diffusion[:, k1, k2]
                 cv = cv + F_est * dW[:, l, k2]  # TODO dW[l+1] ???
     f_T = payout(X)
     result_mc = np.mean(f_T)
-    result_mc_cv = np.mean(f_T + cv)
+    result_mc_cv = np.mean(f_T)+np.sum(cv)
     result_mc_cv_mean = np.mean(cv)
     print('smc={smc:.4f}, cv={vcv:.4f}, cv_mean={cvmean:.6f}'.format(smc=result_mc, vcv=result_mc_cv,
                                                                      cvmean=result_mc_cv_mean))
