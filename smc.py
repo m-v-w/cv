@@ -12,7 +12,7 @@ def smc_run(args: SimulationArgs):
     h = args.h
     payout = args.payout
     d_x, d_w = generator.get_dimensions()
-    n_split = 4 # np.power(N, 1 / 10)
+    n_split = 2 # np.power(N, 1 / 10)
     n_outer = round(n_split)
     n_inner = round(N / n_outer)
     outer_result = np.empty(n_outer)
@@ -28,3 +28,4 @@ def smc_run(args: SimulationArgs):
     return flat, v, 0
 
 
+#smc_run(SimulationArgs())

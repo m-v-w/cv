@@ -6,12 +6,11 @@ import numpy as np
 class SimulationArgs(object):
 
     def __init__(self, generator=mckeangenerator.SimpleGenerator(), payout=CallPayout(0.5)):
-        #self.h = 1 / 100
-        #self.L = int(5 / self.h)
-        self.h = 0.02
+        self.T = 1
         self.L = 50
-        self.N = 10000
-        self.Nr = 5000
+        self.h = self.T / self.L
+        self.N = 4992
+        self.Nr = 4992
         self.K = 5
         self.generator = generator
         payout.h = self.h

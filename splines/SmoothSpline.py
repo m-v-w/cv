@@ -28,4 +28,4 @@ class SmoothSpline(object):
         return self.fp
 
     def get_coeffs(self):
-        return self.tck[2]
+        return np.array(self.tck[1])

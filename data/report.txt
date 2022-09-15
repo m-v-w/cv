@@ -397,3 +397,183 @@ MC CV: mean=0.437426 std=0.005842
 MC CV-Mean: mean=0.000000 std=0.000000
 Gain: 0.968893
 
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.424153 std=0.019382
+MC CV: mean=0.424153 std=0.019382
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.416906 std=0.058323
+MC CV: mean=0.416906 std=0.058323
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.425913 std=0.059432
+MC CV: mean=0.425913 std=0.059432
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.425473 std=0.018998
+MC CV: mean=0.425473 std=0.018998
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+smc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.442545 std=0.018433
+MC CV: mean=0.437287 std=0.016145
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.141717
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.425622 std=0.013944
+MC CV: mean=0.425622 std=0.013944
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.402056 std=0.012271
+MC CV: mean=0.402056 std=0.012271
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.425344 std=0.019734
+MC CV: mean=0.425344 std=0.019734
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.402047 std=0.013175
+MC CV: mean=0.402047 std=0.013175
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.402894 std=0.015384
+MC CV: mean=0.402894 std=0.015384
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=1000 N_R=5000 M=100 L=50
+MC Ref: mean=0.426384 std=0.021236
+MC CV: mean=0.426384 std=0.021236
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+lsv lsvrkhs call N=1000 N_R=1000 M=100 L=50
+MC Ref: mean=343.335614 std=13.513607
+MC CV: mean=345.268661 std=11.763842
+MC CV-Mean: mean=1.933047 std=15.073662
+Gain: 1.148741
+
+lsv lsvrkhs call N=500 N_R=500 M=100 L=50
+MC Ref: mean=346.802801 std=19.894852
+MC CV: mean=348.574635 std=29.450390
+MC CV-Mean: mean=1.771834 std=33.707840
+Gain: 0.675538
+
+lsv lsvrkhs call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=344.469418 std=6.981976
+MC CV: mean=344.340564 std=1.735810
+MC CV-Mean: mean=-0.128854 std=6.804545
+Gain: 4.022316
+
+lsv lsvrkhs call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=344.247869 std=6.641926
+MC CV: mean=345.326158 std=1.879500
+MC CV-Mean: mean=1.078288 std=6.222254
+Gain: 3.533879
+
+lsv lsvrkhs call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=343.737183 std=6.334612
+MC CV: mean=344.334133 std=3.466018
+MC CV-Mean: mean=0.596950 std=8.301583
+Gain: 1.827634
+
+spline lsvrkhs call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=344.356035 std=6.611382
+MC CV: mean=345.689069 std=1.884311
+MC CV-Mean: mean=1.333034 std=6.090274
+Gain: 3.508647
+
+spline lsv call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=340.284391 std=6.775871
+MC CV: mean=341.107777 std=2.253736
+MC CV-Mean: mean=0.823387 std=6.564155
+Gain: 3.006507
+
+poly lsv call N=5000 N_R=5000 M=100 L=50
+MC Ref: mean=340.748210 std=6.064692
+MC CV: mean=340.548391 std=3.761839
+MC CV-Mean: mean=-0.199820 std=8.388880
+Gain: 1.612161
+
+spline lsvrkhs call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=341.515242 std=5.866558
+MC CV: mean=343.469749 std=1.587051
+MC CV-Mean: mean=1.954507 std=5.678655
+Gain: 3.696515
+
+poly lsvrkhs call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=341.841620 std=6.775690
+MC CV: mean=342.614094 std=2.765006
+MC CV-Mean: mean=0.772474 std=8.860351
+Gain: 2.450515
+
+mlmc normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.433579 std=0.010093
+MC CV: mean=0.433579 std=0.010093
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+smc normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.435223 std=0.007715
+MC CV: mean=0.435223 std=0.007715
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.433368 std=0.046253
+MC CV: mean=0.433368 std=0.046253
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.432963 std=0.003643
+MC CV: mean=0.432963 std=0.003643
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+spline normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.434686 std=0.005727
+MC CV: mean=0.434163 std=0.001246
+MC CV-Mean: mean=-0.000523 std=0.005246
+Gain: 4.594873
+
+mlmc normal call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=0.434168 std=0.016021
+MC CV: mean=0.434168 std=0.016021
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc lsvrkhs call N=5000 N_R=5000 M=100 L=500
+MC Ref: mean=343.144872 std=13.050487
+MC CV: mean=343.144872 std=13.050487
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc lsvrkhs call N=4992 N_R=4992 M=100 L=50
+MC Ref: mean=339.717886 std=4.460232
+MC CV: mean=339.717886 std=4.460232
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc lsvrkhs call N=4992 N_R=4992 M=100 L=50
+MC Ref: mean=339.966302 std=2.698919
+MC CV: mean=339.966302 std=2.698919
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+

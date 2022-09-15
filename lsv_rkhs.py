@@ -15,6 +15,7 @@ class LsvGenerator(IPathGenerator):
         print("Lower variance bound set to ", self.v_lower_bound)
         self.name = "lsvrkhs"
         self.market_vol = market_vol
+        print("Current price s0 ",  self.market_vol.s0)
         self.r = r
         self.kappa = kappa
         self.v0 = v0
@@ -23,7 +24,7 @@ class LsvGenerator(IPathGenerator):
         self.rho = rho
         self.lambd = 0.0001
         self.varkernel = 5
-        self.Nkernels = 20
+        self.Nkernels = 16
         self.withconstant = True
 
     def drift(self, X, t):
@@ -68,8 +69,22 @@ class LsvGenerator(IPathGenerator):
         result[:, 0, 1] = 0
         result[:, 1, 0] = diff_v * self.rho
         result[:, 1, 1] = diff_v * np.sqrt(1 - self.rho ** 2)
-
         return result
+
+    def calc_values(self, dW, h):
+        N = dW.shape[0]
+        L = dW.shape[1]-1
+        x0 = self.market_vol.s0
+        x = np.zeros((N, L + 1, 2))
+        x[:, 0, 0] = x0
+        x[:, 0, 1] = self.v0
+        for l in range(1, L + 1):
+            t = (l - 1) * h
+            drift = self.drift(x[:, l - 1, :], t)
+            diffusion = self.diffusion(x[:, l - 1, :], t)
+            x[:, l, 0] = x[:, l - 1, 0] + drift[:, 0] * h + diffusion[:, 0, 0] * dW[:, l - 1, 0] + diffusion[:, 0, 1] * dW[:, l - 1, 1]
+            x[:, l, 1] = np.fmax(self.v_lower_bound, x[:, l - 1, 1] + drift[:, 1] * h + diffusion[:, 1, 0] * dW[:, l - 1, 0] + diffusion[:, 1, 1] * dW[:, l - 1, 1])
+        return x
 
     def generate(self, N, L, h, return_diffusion_delta=False):
         x0 = self.market_vol.s0
@@ -109,3 +124,7 @@ class LsvGenerator(IPathGenerator):
 
     def get_dimensions(self):
         return 2, 2
+
+    def get_complexity(self, N):
+        return N*self.Nkernels*self.Nkernels
+

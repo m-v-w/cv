@@ -9,15 +9,17 @@ from splines.polygons import hermite_poly, hermite_deriv_poly, hermite_poly_mult
 
 def poly_run(args: SimulationArgs, return_derivative=False):
     N = args.N
-    Nr = args.Nr
+    #Nr = args.Nr
+    Nr = N
     L = args.L
     generator = args.generator
     h = args.h
     payout = args.payout
     K = args.K
     d_x, d_w = generator.get_dimensions()
-    Xr, _ = generator.generate(Nr, L, h)
+    #Xr, _ = generator.generate(Nr, L, h)
     X, dW = generator.generate(N, L, h)
+    Xr = X
     w = np.zeros((Nr, L+1))
     w[:, L] = payout(Xr)
     delta_phi = np.zeros((N, L + 1, d_x))

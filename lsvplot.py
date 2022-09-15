@@ -33,7 +33,7 @@ plt.plot(np.sqrt(v[0, :]))
 plt.show()'''
 
 strikes = np.exp(lsv.market_vol.moneyness)*lsv.market_vol.s0
-strike_grid, time_idx_grid = np.meshgrid(strikes[2:-1], range(30, L+1, 10))
+strike_grid, time_idx_grid = np.meshgrid(strikes[2:-1], range(30, 1250, 10))
 simulated_prices = np.mean(np.fmax(x[:, time_idx_grid]-np.tile(strike_grid, (N, 1, 1)), 0), axis=0)
 local_prices = np.mean(np.fmax(x_local[:, time_idx_grid]-np.tile(strike_grid, (N, 1, 1)), 0), axis=0)
 simulated_itm = np.sum(x[:, time_idx_grid] > np.tile(strike_grid, (N, 1, 1)), axis=0)
@@ -75,7 +75,7 @@ plt.savefig("plots/market_iv.eps", format="eps")
 plt.show()
 
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-plt.title("Market Dupire local vol")
+#plt.title("Market Dupire local vol")
 surf = ax.plot_surface(strike_grid, time_idx_grid, local_vol, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 plt.savefig("plots/market_dupire.png", format="png")
 plt.savefig("plots/market_dupire.eps", format="eps")

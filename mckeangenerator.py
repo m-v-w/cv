@@ -67,15 +67,20 @@ class SimpleGenerator(IPathGenerator):
     def get_dimensions(self):
         return 1, 1
 
-    def generate(self, N, L, h, return_diffusion_delta = False):
-        x0 = 0
+    def calc_values(self, dW, h):
+        N = dW.shape[0]
+        L = dW.shape[1]-1
         x = np.zeros((N, L + 1, 1))
-        x[:, 0, 0] = x0
-        dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1, 1))
+        x[:, 0, 0] = 0
         for l in range(1, L + 1):
             t = (l - 1) * h
             drift = self.drift(x[:, l - 1, :], t)
             x[:, l, 0] = x[:, l - 1, 0] + drift * h + dW[:, l - 1, 0]
+        return x
+
+    def generate(self, N, L, h, return_diffusion_delta=False):
+        dW = np.math.sqrt(h) * np.random.normal(0, 1, (N, L + 1, 1))
+        x = self.calc_values(dW, h)
         if return_diffusion_delta:
             return x, dW, dW  # TODO delta diffusion indexing
         return x, dW
