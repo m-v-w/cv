@@ -20,7 +20,7 @@ def mlmc_dev_run(args: SimulationArgs):
     schedule_N = 2**np.array(range(t, t+totalLevels))
     p = 1
     schedule_M = 2 ** (-(p+4)*np.array(range(totalLevels))/2)
-    scale_M = budget/np.sum(schedule_M*schedule_L*args.generator.get_complexity(schedule_N))
+    scale_M = 0.5*budget/np.sum(schedule_M*schedule_L*args.generator.get_complexity(schedule_N))
     schedule_M = np.maximum(1, np.round(scale_M*schedule_M))
     used = np.sum(schedule_M*schedule_L*args.generator.get_complexity(schedule_N))
     print('budget={budget:.4f}, used={used:.4f}, rel={rel:.4f}'.format(budget=budget, used=used, rel=(used/budget)))
@@ -53,8 +53,8 @@ def mlmc_dev_run(args: SimulationArgs):
     return result, result, 0
 
 
-start_time = time.time()
-generator = lsv_rkhs.LsvGenerator()
-payout = CallPayout(generator.market_vol.s0)
-mlmc_dev_run(SimulationArgs(generator, payout))
-print("--- %s seconds ---" % (time.time() - start_time))
+#start_time = time.time()
+#generator = lsv_rkhs.LsvGenerator()
+#payout = CallPayout(generator.market_vol.s0)
+#mlmc_dev_run(SimulationArgs(generator, payout))
+#print("--- %s seconds ---" % (time.time() - start_time))
