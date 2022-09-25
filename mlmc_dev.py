@@ -18,7 +18,7 @@ def mlmc_dev_run(args: SimulationArgs):
     schedule_L = np.ones(totalLevels) * args.L
     t = math.ceil(math.log2(args.N))-totalLevels-1
     schedule_N = 2**np.array(range(t, t+totalLevels))
-    p = 1
+    p = 2
     schedule_M = 2 ** (-(p+4)*np.array(range(totalLevels))/2)
     scale_M = 0.5*budget/np.sum(schedule_M*schedule_L*args.generator.get_complexity(schedule_N))
     schedule_M = np.maximum(1, np.round(scale_M*schedule_M))

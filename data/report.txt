@@ -577,3 +577,15 @@ MC CV: mean=339.966302 std=2.698919
 MC CV-Mean: mean=0.000000 std=0.000000
 Gain: 1.000000
 
+mlmc lsvrkhs call N=4992 N_R=4992 M=100 L=50
+MC Ref: mean=340.145604 std=3.255382
+MC CV: mean=340.145604 std=3.255382
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
+mlmc lsvrkhs call N=4992 N_R=4992 M=100 L=50
+MC Ref: mean=340.284938 std=2.778024
+MC CV: mean=340.284938 std=2.778024
+MC CV-Mean: mean=0.000000 std=0.000000
+Gain: 1.000000
+
